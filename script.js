@@ -105,15 +105,36 @@ function renderQuestion() {
 
   document.getElementById('step-indicator').innerText = `Step 0${currentStep + 1} // 0${questions.length}`;
   
-  // --- UPGRADE: INJECT HIGH-TECH TYPING EFFECT ---
+  // --- HIGH-TECH JS TYPING ENGINE ---
   const qTextElement = document.getElementById('question-text');
-  qTextElement.innerHTML = `<span class="luxury-type">${q.text}</span>`;
+  qTextElement.innerHTML = `<span class="luxury-type"></span>`;
+  const span = qTextElement.querySelector('.luxury-type');
   
+  let currentTxt = q.text;
+  let charIndex = 0;
+  
+  // Clear any existing options during typing to prevent premature clicks
   const optionsBox = document.getElementById('options-container');
   optionsBox.innerHTML = ''; 
 
+  function typeChar() {
+    if (charIndex < currentTxt.length) {
+      span.textContent += currentTxt.charAt(charIndex);
+      charIndex++;
+      setTimeout(typeChar, 15); // Blazing fast 15ms typing interval
+    } else {
+      // Typing finished! Remove the cursor line and drop the buttons down cleanly
+      span.style.borderRight = "none";
+      renderOptions(q, optionsBox, sunOverlay);
+    }
+  }
+  
   if (sunOverlay) sunOverlay.style.opacity = '0';
+  typeChar();
+}
 
+// Separate helper function to draw the buttons right when typing finishes
+function renderOptions(q, optionsBox, sunOverlay) {
   q.options.forEach(opt => {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
