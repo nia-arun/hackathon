@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crop Finder | Farmspherica</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+  <div id="sunlight-overlay"></div>
+
+  <main class="app-wrapper">
+    
+    <section id="landing-section" class="fade-in landing-layout">
+      <div class="header-sub">Farmspherica Innovations</div>
+      <h1 class="hero-title">Discover your perfect crop.</h1>
+      <p class="hero-subtitle">Answer three quick questions about your environment and experience to find the ideal hydroponic match for your space.</p>
+      <button class="btn-primary" onclick="startQuiz()">Begin Assessment</button>
+    </section>
+
+    <section id="quiz-section" class="hidden">
+      <div class="header-sub" id="step-indicator">Step 1 of 3</div>
+      <h1 id="question-text">Loading...</h1>
+      <div id="options-container" class="options-grid"></div>
+    </section>
+
+    <section id="results-section" class="hidden">
+      <div class="header-sub">Your Matches</div>
+      <h1>Here is what you should grow.</h1>
+      <div id="results-container"></div>
+      <button class="btn-reset" onclick="startOver()">Start Over</button>
+      
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+
+
+</body>
+</html>

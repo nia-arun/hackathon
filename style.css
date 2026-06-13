@@ -1,0 +1,367 @@
+/* --- Brand Variables --- */
+:root {
+  --ink: #14110F;
+  --paper: #fff;
+  --accent: #2f7d32;
+  --accent-soft: #eaf3ea;
+  --border-light: #eaeaea;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Inter Tight', -apple-system, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* --- Sunlight Effect FIX --- */
+#sunlight-overlay {
+  position: fixed;
+  top: -10%;
+  right: -10%;
+  width: 120vw;
+  height: 120vh;
+  /* Solid warm light */
+  background: radial-gradient(circle at 80% 20%, rgba(255, 240, 180, 1) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+  /* We control visibility with opacity now */
+  opacity: 0; 
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 600px;
+  padding: 40px 24px;
+}
+
+/* --- Typography --- */
+.header-sub {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  margin-bottom: 48px;
+  line-height: 1.1;
+}
+
+/* --- Landing Page --- */
+.landing-layout {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 60vh;
+}
+
+.hero-title {
+  font-size: clamp(2.8rem, 8vw, 4.5rem);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  margin-bottom: 24px;
+  line-height: 1.05;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: #5b6b5c;
+  margin-bottom: 48px;
+  max-width: 450px;
+}
+
+.btn-primary {
+  padding: 18px 40px;
+  background: var(--accent);
+  color: var(--paper);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: inherit;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(47, 125, 50, 0.2);
+}
+
+/* --- Quiz Controls --- */
+.options-grid { display: flex; flex-direction: column; gap: 12px; }
+
+.option-btn {
+  width: 100%;
+  text-align: left;
+  padding: 24px 28px;
+  background: var(--paper);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-family: inherit;
+  color: var(--ink);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.option-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: translateX(8px);
+}
+
+/* --- Result Cards & Images --- */
+.card {
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 16px;
+  background: var(--paper);
+  align-items: flex-start;
+}
+
+.card:last-child { border-bottom: none; }
+
+.card-img {
+  width: 90px;
+  height: 90px;
+  object-fit: contain; /* Ensures your whole drawing fits */
+  
+  /* THE MAGIC TRICK: This makes the white background disappear */
+  mix-blend-mode: multiply; 
+  
+  flex-shrink: 0;
+  transition: transform 0.4s ease;
+}
+
+/* Make your art bounce when hovered */
+.card:hover .card-img {
+  transform: translateY(-4px) scale(1.05);
+}
+.card-content h3 { font-size: 1.4rem; font-weight: 400; margin-bottom: 8px; }
+.card-content p { font-size: 1rem; color: #5b6b5c; }
+
+.btn-reset {
+  margin-top: 48px;
+  padding: 16px 32px;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: background 0.3s ease;
+}
+.btn-reset:hover { background: var(--accent); }
+
+/* --- Utilities --- */
+.hidden { display: none !important; }
+.fade-in { animation: fadeIn 0.6s ease forwards; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* 1. The Living Background */
+body {
+  background: linear-gradient(-45deg, #fefefe, #e8f5e9, #f1f8e9, #ffffff);
+  background-size: 400% 400%;
+  animation: breathe 15s ease infinite;
+}
+
+@keyframes breathe {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 2. Frosted Glass UI */
+#quiz-section, #results-section {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* Satisfying Button Physics */
+.option-btn {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border-radius: 12px;
+  border: 1px solid #eee;
+  background: white;
+}
+
+.option-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(47, 125, 50, 0.15);
+  border-color: #2f7d32;
+  color: #2f7d32;
+}
+/* 3. Staggered Card Reveal */
+@keyframes floatUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+  border-radius: 16px;
+  background: #fff;
+  border: none;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  /* The cinematic entrance */
+  opacity: 0;
+  animation: floatUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Makes the cards pop in one after the other */
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.25s; }
+.card:nth-child(3) { animation-delay: 0.4s; }
+
+/* 3D Hover effect for the cards */
+.card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+}
+
+/* Bouncy Button Physics */
+.option-btn {
+  position: relative;
+  overflow: hidden;
+  /* Adds a subtle shadow by default */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+}
+
+/* The satisfying "squish" when you actually click it */
+.option-btn:active {
+  transform: scale(0.92) !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+}
+
+/* A ripple effect that expands from the center on hover */
+.option-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 0; height: 0;
+  background: rgba(47, 125, 50, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+  z-index: -1;
+}
+
+.option-btn:hover::after {
+  width: 300px; height: 300px;
+}
+/* The Springy Entrance Animation */
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.option-btn {
+  /* Hides them initially so the animation can play */
+  opacity: 0; 
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Staggers the entrance so they flow in a 1-2-3 rhythm */
+.option-btn:nth-child(1) { animation-delay: 0.05s; }
+.option-btn:nth-child(2) { animation-delay: 0.06s; }
+.option-btn:nth-child(3) { animation-delay: 0.07s; }
+/* ==========================================
+   HIGH-END LUXURY TECH UPGRADE LAYER
+   ========================================== */
+
+/* Locks the question box height so buttons NEVER shift or wobble */
+#quiz-section {
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Spaces out options cleanly on a strict vertical grid */
+#options-container {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Premium Architectural Typography Tweak */
+#question-text, #landing-section h1, #results-section h2 {
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  margin-bottom: 24px;
+}
+
+/* Fluid Digital-Ink Reveal Keyframes */
+@keyframes fluidInk {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes caretBlink {
+  from, to { border-color: transparent; }
+  50% { border-color: #2f7d32; }
+}
+
+@keyframes fadeCaretOut {
+  from { border-right-width: 1px; }
+  to { border-right-width: 0px; opacity: 1; }
+}
+
+/* The Typing Animation Class Wrapper */
+/* Premium Digital-Ink Reveal (Supports Multi-line & Large Text) */
+.luxury-type {
+  display: block;
+  opacity: 0;
+  transform: translateY(8px);
+  box-sizing: border-box;
+  
+  /* Blazing fast, premium vertical unfurl curve */
+  animation: fluidInkReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fluidInkReveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(4px); /* Adds a subtle high-tech focal lens effect */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
