@@ -7,7 +7,7 @@ const crops = [
 
   // Windowsill + Medium + Beginner
   { name: "Butterhead Lettuce", img: "assets/lettuce.png", reason: "The beginner favorite. Fast leaf production under average light.", space: "windowsill", light: "medium", level: "beginner" },
-  { name: "Romaine Lettuce", img: "assets/romaine.png", reason: "Crisp, reliable, and perfectly suited for a kitchen window ledge.", space: "windowsill", light: "medium", level: "beginner" },
+  { name: "Romaine Lettuce", img: "assets/romainelettuce.png", reason: "Crisp, reliable, and perfectly suited for a kitchen window ledge.", space: "windowsill", light: "medium", level: "beginner" },
 
   // Windowsill + Lots + Beginner
   { name: "Genovese Basil", img: "assets/basil.jpg", reason: "Explodes with aromatic essential oils when given direct, harsh window sun.", space: "windowsill", light: "lots", level: "beginner" },
@@ -80,7 +80,7 @@ const crops = [
 const questions = [
   { id: "space", text: "Where will your garden live?", options: ["Windowsill", "Balcony", "Room"] },
   { id: "light", text: "How much natural light enters this space?", options: ["Low", "Medium", "Lots"] },
-  { id: "level", text: "How experienced are your hands?", options: ["Beginner", "Pro"] }
+  { id: "level", text: "How experienced are you?", options: ["Beginner", "Pro"] }
 ];
 
 let currentStep = 0;
@@ -121,7 +121,7 @@ function renderQuestion() {
     if (charIndex < currentTxt.length) {
       span.textContent += currentTxt.charAt(charIndex);
       charIndex++;
-      setTimeout(typeChar, 15); // Blazing fast 15ms typing interval
+      setTimeout(typeChar, 37); // Blazing fast 37ms typing interval
     } else {
       // Typing finished! Remove the cursor line and drop the buttons down cleanly
       span.style.borderRight = "none";
@@ -237,7 +237,10 @@ function showResults() {
 function startOver() {
   currentStep = 0;
   userAnswers = {};
+  
+  // Hide the results section
   document.getElementById('results-section').classList.add('hidden');
-  document.getElementById('quiz-section').classList.remove('hidden');
-  renderQuestion();
+  
+  // Bring back the main home/landing page
+  document.getElementById('landing-section').classList.remove('hidden');
 }
