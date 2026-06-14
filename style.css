@@ -594,3 +594,21 @@ body.results-active {
     opacity: 0;
   }
 }
+#sunbeam-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 24px;   
+  height: 24px;
+  background: rgba(146, 234, 155, 0.27); /* Soft, elegant botanical green core */
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;    
+  will-change: transform;
+  
+  /* Creates a large, unmistakable ambient aura that contrasts beautifully on light backgrounds */
+  box-shadow: 0 0 140px 70px rgba(113, 232, 117, 0.392);
+  
+  /* Blends smoothly into the background colors underneath it */
+  mix-blend-mode: multiply; 
+}

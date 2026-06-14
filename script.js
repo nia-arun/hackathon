@@ -307,3 +307,13 @@ function startOver() {
   
   document.getElementById('landing-section').classList.remove('hidden');
 }
+document.addEventListener('DOMContentLoaded', () => {
+  const sunbeam = document.getElementById('sunbeam-cursor');
+  
+  if (sunbeam) {
+    window.addEventListener('mousemove', (e) => {
+      // Centers the 20px dot exactly on the mouse coordinates
+      sunbeam.style.transform = `translate3d(${e.clientX - 10}px, ${e.clientY - 10}px, 0)`;
+    });
+  }
+});
