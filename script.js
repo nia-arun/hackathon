@@ -156,10 +156,11 @@ function renderQuestion() {
 // Separate helper function to draw the buttons right when typing finishes
 function renderOptions(q, optionsBox, sunOverlay) {
     document.getElementById('quiz-section').classList.add('expanded');
-  q.options.forEach(opt => {
+  q.options.forEach((opt, index) => {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
-    btn.innerText = opt;
+    btn.dataset.index = index; // Used by keyboard navigation
+    btn.innerHTML = `<span class="btn-label">${opt}</span><span class="kbd-hint">${index + 1}</span>`;
     
     if (q.id === "light" && sunOverlay) {
       let intensity = '0';
@@ -171,9 +172,29 @@ function renderOptions(q, optionsBox, sunOverlay) {
       btn.addEventListener('mouseleave', () => sunOverlay.style.opacity = '0');
     }
 
-    btn.onclick = () => handleAnswer(q.id, opt.toLowerCase());
+    btn.onclick = () => triggerSelection(btn, q.id, opt.toLowerCase());
     optionsBox.appendChild(btn);
   });
+}
+
+// Leaf burst animation then advance
+function triggerSelection(btn, questionId, answer) {
+  if (isTyping) return;
+
+  // Inject leaf burst element
+  const leaf = document.createElement('span');
+  leaf.className = 'leaf-burst';
+  leaf.textContent = '🌿';
+  btn.appendChild(leaf);
+
+  // Lock all buttons during animation
+  const allBtns = document.querySelectorAll('.option-btn');
+  allBtns.forEach(b => b.style.pointerEvents = 'none');
+
+  // Wait for burst to play, then advance
+  setTimeout(() => {
+    handleAnswer(questionId, answer);
+  }, 420);
 }
 function handleAnswer(questionId, answer) {
   if (isTyping) return;
@@ -207,6 +228,10 @@ function showResults() {
   setTimeout(() => {
     resultsSec.classList.add('section-visible');
   }, 10);
+
+  // Write shareable URL with query params
+  const params = new URLSearchParams(userAnswers);
+  history.pushState({}, '', '?' + params.toString());
 
   // --- UPGRADE: UNLOCK MOVING GRADIENT FOR ENTIRE PAGE BACKGROUND ---
   document.body.classList.add('results-active');
@@ -362,11 +387,12 @@ function startOver() {
   userAnswers = {};
   isTyping = false;
   
+  // Clear the shareable URL params
+  history.pushState({}, '', window.location.pathname);
+
   // Cleanly clear visibility states
   document.getElementById('results-section').classList.remove('section-visible');
   document.getElementById('results-section').classList.add('hidden');
-  
-
 
   // Reset sunlight overlay
   const sunOverlay = document.getElementById('sunlight-overlay');
@@ -384,8 +410,43 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (sunbeam) {
     window.addEventListener('mousemove', (e) => {
-      // Centers the 20px dot exactly on the mouse coordinates
       sunbeam.style.transform = `translate3d(${e.clientX - 10}px, ${e.clientY - 10}px, 0)`;
     });
+  }
+
+  // --- KEYBOARD NAVIGATION: 1/2/3 to select quiz options ---
+  window.addEventListener('keydown', (e) => {
+    if (isTyping) return;
+    const quizVisible = !document.getElementById('quiz-section').classList.contains('hidden');
+    if (!quizVisible) return;
+
+    const num = parseInt(e.key);
+    if (isNaN(num) || num < 1) return;
+
+    const btns = document.querySelectorAll('.option-btn');
+    const target = btns[num - 1];
+    if (target) {
+      // Briefly highlight the button so the user sees the key press registered
+      target.classList.add('kbd-active');
+      setTimeout(() => target.click(), 120);
+    }
+  });
+
+  // --- SHAREABLE URL: auto-parse params on page load and skip to results ---
+  const params = new URLSearchParams(window.location.search);
+  const space = params.get('space');
+  const light = params.get('light');
+  const level = params.get('level');
+
+  const validSpaces = ['windowsill', 'balcony', 'room'];
+  const validLights = ['low', 'medium', 'lots'];
+  const validLevels = ['beginner', 'pro'];
+
+  if (validSpaces.includes(space) && validLights.includes(light) && validLevels.includes(level)) {
+    // All three params are valid — restore answers and jump straight to results
+    userAnswers = { space, light, level };
+    currentStep = questions.length;
+    document.getElementById('landing-section').classList.add('hidden');
+    showResults();
   }
 });
