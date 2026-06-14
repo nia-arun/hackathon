@@ -15,7 +15,7 @@ const crops = [
 
   // Room + Low + Beginner
   { name: "Baby Spinach", img: "assets/babyspinach.png", reason: "Prefers stable, cooler indoor microclimates away from intense heat.", space: "room", light: "low", level: "beginner" },
-  { name: "Red Russian Kale", img: "assets/rkale.png", reason: "Extremely resilient crop that handles lower ambient light in room setups.", space: "room", light: "low", level: "beginner" },
+  { name: "Red Russian Kale", img: "assets/redkale.png", reason: "Extremely resilient crop that handles lower ambient light in room setups.", space: "room", light: "low", level: "beginner" },
 
   // Room + Medium + Beginner
   { name: "Arugula", img: "assets/arugula.png", reason: "Fast-growing peppery green that thrives on standard ambient indoor light.", space: "room", light: "medium", level: "beginner" },
