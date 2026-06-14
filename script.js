@@ -551,10 +551,19 @@ async function downloadResultCard(btn) {
     lines.push(line.trim());
     lines.slice(0, 3).forEach((l, li) => ctx.fillText(l, textX, cy + 92 + li * 20));
 
-    // 4. System recommendation tag to fill remaining middle space
+    // 4. System recommendation tag & Dynamic Dosage Recipe
     ctx.fillStyle = 'rgba(47, 125, 50, 0.7)';
-    ctx.font = '600 10px system-ui, sans-serif';
-    ctx.fillText(`SYSTEM HYDROPONICS: ${meta.system.toUpperCase()}`, textX, cy + 158);
+    ctx.font = '600 9px system-ui, sans-serif';
+    ctx.fillText(`SYSTEM: ${meta.system.toUpperCase()}`, textX, cy + 150);
+
+    // Calculate dynamic dosage based on EC values (ml of nutrients per 10L water)
+    const ecParts = guide.ec.split('-');
+    const avgEc = ecParts.length > 1 ? (parseFloat(ecParts[0]) + parseFloat(ecParts[1])) / 2 : (parseFloat(guide.ec) || 1.5);
+    const dosageMl = Math.round(avgEc * 10);
+
+    ctx.fillStyle = '#2f7d32';
+    ctx.font = '700 9px system-ui, sans-serif';
+    ctx.fillText(`10L MIX RECIPE: Part A (${dosageMl}mL) + Part B (${dosageMl}mL) + Water (10L)`, textX, cy + 164);
 
     // 5. Stat chips at the bottom
     const stats = [
@@ -593,7 +602,7 @@ async function downloadResultCard(btn) {
   // Trigger download
   try {
     const a = document.createElement('a');
-    a.download = `crop-matches-${userAnswers.space}.png`;
+    a.download = `farmspherica-grow-card-${userAnswers.space}-${userAnswers.level}.png`;
     a.href = canvas.toDataURL('image/png');
     a.click();
   } catch(e) {
