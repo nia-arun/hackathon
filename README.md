@@ -1,4 +1,5 @@
-#My Project for the hackathon - The Founder's Web x Farmspherica 🌿
+## My Project for the hackathon - The Founder's Web x Farmspherica ｡𖦹°‧
+
 
 Instead of trying to build an overly complicated app that does a million things poorly, I chose a simple, clean topic—plant matching—so I could focus entirely on executing a beautiful, custom user experience.
 
@@ -6,7 +7,7 @@ Instead of relying on standard, copy-pasted UI frameworks, I wanted the app to f
 
 ---
 
-## 🎨 The Cool Stuff Inside
+## °❀ The Cool Stuff Inside
 
 * **Bespoke Whimsy:** I brought personality into the app using custom hand-drawn elements paired with smooth, moving color gradients in the background so the app never feels flat or static.
 * **Melloida DEMO Typography:** I swapped out standard browser fonts for a heavy, high-contrast display typeface. It’s used strictly for the quiz questions and card headers to give the project a bold, premium editorial look.
@@ -15,7 +16,7 @@ Instead of relying on standard, copy-pasted UI frameworks, I wanted the app to f
 
 ---
 
-## 🛠️ How It’s Built
+##  How It’s Built ೃ࿔
 
 * **Frontend:** Clean, simple HTML5.
 * **Styling & Motion:** Pure CSS3 for the layout, animations, and smooth custom easing curves.
@@ -23,7 +24,7 @@ Instead of relying on standard, copy-pasted UI frameworks, I wanted the app to f
 
 ---
 
-## 🚀 Run It Locally
+##  Run It Locally ✮⋆˙
 1. Clone the repo.
 2. Open `index.html` and hit it with a hard refresh (`Ctrl + F5` or `Cmd + Shift + R`) to load the custom typography and background layers cleanly.
 
