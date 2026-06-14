@@ -563,7 +563,7 @@ async function downloadResultCard(btn) {
 
     ctx.fillStyle = '#2f7d32';
     ctx.font = '700 9px system-ui, sans-serif';
-    ctx.fillText(`10L MIX RECIPE: Part A (${dosageMl}mL) + Part B (${dosageMl}mL) + Water (10L)`, textX, cy + 164);
+    ctx.fillText(`10L RESERVOIR MIX: Part A (${dosageMl}mL) + Part B (${dosageMl}mL) Liquid Concentrates in 10L Water`, textX, cy + 164);
 
     // 5. Stat chips at the bottom
     const stats = [
