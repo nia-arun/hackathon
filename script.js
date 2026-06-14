@@ -383,18 +383,7 @@ async function downloadResultCard(btn) {
 
   if (templateBg) {
     ctx.drawImage(templateBg, 0, 0, W, H);
-    
-    // Dynamic answers pill - centered, sleek, matching the template vibe
-    const pillTxt = `${userAnswers.space.toUpperCase()}  ·  ${userAnswers.light.toUpperCase()} LIGHT  ·  ${userAnswers.level.toUpperCase()}`;
-    ctx.fillStyle = 'rgba(47, 125, 50, 0.08)';
-    rr(W/2 - 150, 208, 300, 26, 13); ctx.fill();
-    ctx.strokeStyle = 'rgba(47, 125, 50, 0.2)'; ctx.lineWidth = 1;
-    rr(W/2 - 150, 208, 300, 26, 13); ctx.stroke();
-    
-    ctx.fillStyle = '#2f7d32';
-    ctx.font = '600 11px system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(pillTxt, W / 2, 225);
+    // (Pill removed from template backdrop per user request)
 
     // Map exactly to your Canva template's slot bounding boxes
     slots = [
@@ -466,6 +455,30 @@ async function downloadResultCard(btn) {
     }));
   }
 
+  // Helper to resolve categories, setups, and difficulties dynamically to make the cards feel filled
+  function getCropMetadata(cropName, level) {
+    const nameLower = cropName.toLowerCase();
+    let category = "SPECIALTY CROP";
+    let system = "DWC System Setup";
+
+    if (nameLower.includes("lettuce") || nameLower.includes("spinach") || nameLower.includes("kale") || nameLower.includes("bok choy") || nameLower.includes("tatsoi") || nameLower.includes("chard") || nameLower.includes("arugula")) {
+      category = "LEAFY GREEN COLLECTION";
+      system = "NFT Channels / Deep Water Culture (DWC)";
+    } else if (nameLower.includes("basil") || nameLower.includes("mint") || nameLower.includes("chives") || nameLower.includes("parsley") || nameLower.includes("cilantro") || nameLower.includes("dill") || nameLower.includes("thyme") || nameLower.includes("oregano") || nameLower.includes("lavender") || nameLower.includes("marjoram") || nameLower.includes("balm") || nameLower.includes("catnip")) {
+      category = "HERB & BOTANICAL COLLECTION";
+      system = "Passive Kratky / Micro-DWC Arrays";
+    } else if (nameLower.includes("tomato") || nameLower.includes("peppers") || nameLower.includes("beans") || nameLower.includes("strawberry") || nameLower.includes("lime") || nameLower.includes("lemon")) {
+      category = "FRUITING & VEGETABLE SERIES";
+      system = "Active Drip Irrigation / Dutch Buckets";
+    } else if (nameLower.includes("echinacea") || nameLower.includes("chamomile") || nameLower.includes("watercress") || nameLower.includes("celery")) {
+      category = "SPECIALTY BOTANICAL SERIES";
+      system = "Dynamic Stream NFT / Recirculating Loops";
+    }
+
+    const diffText = level.toUpperCase() === "BEGINNER" ? "EASY SETUP" : "EXPERT LEVEL";
+    return { category, system, difficulty: diffText };
+  }
+
   matches.forEach((crop, i) => {
     const guide = getGrowGuide(crop.name);
     const slot = slots[i];
@@ -501,17 +514,31 @@ async function downloadResultCard(btn) {
       rr(imgX, imgY, IMG_SIZE, IMG_SIZE, 12); ctx.fill();
     }
 
-    // Text
-    const textX = imgX + IMG_SIZE + 24;
-    const textW = cardW - IMG_SIZE - 64;
+    // Thin elegant vertical divider separating image and text column
+    ctx.beginPath();
+    ctx.moveTo(imgX + IMG_SIZE + 14, cy + 24);
+    ctx.lineTo(imgX + IMG_SIZE + 14, cy + cardH - 24);
+    ctx.strokeStyle = 'rgba(47, 125, 50, 0.08)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Text column details
+    const textX = imgX + IMG_SIZE + 32;
+    const textW = cardW - IMG_SIZE - 72;
+    const meta = getCropMetadata(crop.name, userAnswers.level);
     ctx.textAlign = 'left';
 
-    // Name
+    // 1. Plant Name
     ctx.fillStyle = '#14110F';
-    ctx.font = 'bold 22px system-ui, sans-serif';
+    ctx.font = 'bold 26px system-ui, sans-serif';
     ctx.fillText(crop.name, textX, cy + 44);
 
-    // Reason — word-wrap
+    // 2. Collection Category and Difficulty Level Subheading
+    ctx.fillStyle = '#2f7d32';
+    ctx.font = '700 9px monospace, sans-serif';
+    ctx.fillText(`${meta.category} // ${meta.difficulty}`, textX, cy + 62);
+
+    // 3. Reason description (wrapped and spaced nicely)
     ctx.fillStyle = '#5b6b5c';
     ctx.font = '400 13px system-ui, sans-serif';
     const words = crop.reason.split(' ');
@@ -522,9 +549,14 @@ async function downloadResultCard(btn) {
       else line = test;
     }
     lines.push(line.trim());
-    lines.slice(0, 3).forEach((l, li) => ctx.fillText(l, textX, cy + 68 + li * 18));
+    lines.slice(0, 3).forEach((l, li) => ctx.fillText(l, textX, cy + 92 + li * 20));
 
-    // Stat chips
+    // 4. System recommendation tag to fill remaining middle space
+    ctx.fillStyle = 'rgba(47, 125, 50, 0.7)';
+    ctx.font = '600 10px system-ui, sans-serif';
+    ctx.fillText(`SYSTEM HYDROPONICS: ${meta.system.toUpperCase()}`, textX, cy + 158);
+
+    // 5. Stat chips at the bottom
     const stats = [
       { label: 'pH', val: guide.ph },
       { label: 'EC', val: guide.ec },
@@ -532,7 +564,7 @@ async function downloadResultCard(btn) {
       { label: 'Harvest', val: guide.harvest },
     ];
     const chipW = (textW - 12) / 4;
-    const statRowY = cy + cardH - 58;
+    const statRowY = cy + cardH - 64;
     stats.forEach((s, si) => {
       const sx = textX + si * (chipW + 4);
       ctx.fillStyle = 'rgba(47, 125, 50, 0.05)';
