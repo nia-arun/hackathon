@@ -24,7 +24,7 @@ Instead of relying on standard, copy-pasted UI frameworks, I wanted the app to f
 * **Frontend:** Clean, simple HTML5.
 * **Styling & Motion:** Pure CSS3 for the layout, animations, and smooth custom easing curves.
 * **Logic:** Vanilla JavaScript for the quiz progression and the mouse-tracking physics.
-
+* **Assets:** All me. I drew all the elements by hand because i wanted add a bit of my own charm to it.
 ---
 
 ##  Run It Locally ✮⋆˙
