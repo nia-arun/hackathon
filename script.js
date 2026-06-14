@@ -316,17 +316,17 @@ function showResults() {
     });
   }
 
-  // Clear out any old Copy Link / resource link if it exists
-  const existingCopyBtn = document.getElementById('copy-link-btn');
-  if (existingCopyBtn) existingCopyBtn.remove();
+  // Clear out any old action buttons / resource link to avoid duplication
+  const existingDlBtn = document.getElementById('download-card-btn');
+  if (existingDlBtn) existingDlBtn.remove();
   const existingLink = document.getElementById('global-resource-link');
   if (existingLink) existingLink.remove();
 
-  // Inject Copy Link button above the Farmspherica link
+  // Inject Download Card button above the Farmspherica link
   resultsSec.insertAdjacentHTML('beforeend', `
-    <button id="copy-link-btn" class="copy-link-btn" onclick="copyShareLink(this)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-      Copy shareable link
+    <button id="download-card-btn" class="download-card-btn" onclick="downloadResultCard(this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download results card
     </button>
     <a href="https://farmspherica.com" target="_blank" id="global-resource-link" class="resource-link">
       [ Learn more about Hydroponics at Farmspherica ↗ ]
@@ -334,15 +334,196 @@ function showResults() {
   `);
 }
 
-function copyShareLink(btn) {
-  navigator.clipboard.writeText(window.location.href).then(() => {
-    btn.classList.add('copied');
-    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!`;
-    setTimeout(() => {
-      btn.classList.remove('copied');
-      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy shareable link`;
-    }, 2500);
+async function downloadResultCard(btn) {
+  const originalHTML = btn.innerHTML;
+  btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Generating...`;
+  btn.disabled = true;
+
+  const W = 820, H = 960, DPR = 2;
+  const canvas = document.createElement('canvas');
+  canvas.width  = W * DPR;
+  canvas.height = H * DPR;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(DPR, DPR);
+
+  // ---- helpers ----
+  function rr(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+  const loadImg = src => new Promise(res => {
+    const img = new Image();
+    img.onload = () => res(img);
+    img.onerror = () => res(null);
+    img.src = src;
   });
+
+  // ---- background ----
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0,   '#0b1c0c');
+  bg.addColorStop(0.45,'#112114');
+  bg.addColorStop(1,   '#0b1c0c');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Dot grid
+  ctx.fillStyle = 'rgba(255,255,255,0.025)';
+  for (let x = 30; x < W; x += 50)
+    for (let y = 30; y < H; y += 50) {
+      ctx.beginPath(); ctx.arc(x, y, 1.5, 0, Math.PI*2); ctx.fill();
+    }
+
+  // Top accent bar
+  const accent = ctx.createLinearGradient(0, 0, W, 0);
+  accent.addColorStop(0,   'rgba(139,203,123,0)');
+  accent.addColorStop(0.5, 'rgba(139,203,123,0.8)');
+  accent.addColorStop(1,   'rgba(139,203,123,0)');
+  ctx.fillStyle = accent;
+  ctx.fillRect(0, 0, W, 3);
+
+  // Header area
+  ctx.fillStyle = 'rgba(47,125,50,0.08)';
+  ctx.fillRect(0, 0, W, 120);
+
+  ctx.fillStyle = '#8bcb7b';
+  ctx.font = '600 11px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('FARMSPHERICA INNOVATIONS', W / 2, 40);
+
+  ctx.fillStyle = '#e8f5e8';
+  ctx.font = 'bold 34px system-ui, sans-serif';
+  ctx.fillText('Your Crop Matches', W / 2, 86);
+
+  // Answers pill
+  const pillTxt = `${userAnswers.space}  ·  ${userAnswers.light} light  ·  ${userAnswers.level}`;
+  ctx.fillStyle = 'rgba(139,203,123,0.1)';
+  rr(W/2 - 165, 100, 330, 36, 18); ctx.fill();
+  ctx.strokeStyle = 'rgba(139,203,123,0.22)'; ctx.lineWidth = 1;
+  rr(W/2 - 165, 100, 330, 36, 18); ctx.stroke();
+  ctx.fillStyle = '#8bcb7b';
+  ctx.font = '500 13px system-ui, sans-serif';
+  ctx.fillText(pillTxt, W / 2, 122);
+
+  // ---- matches ----
+  const matches = crops.filter(c =>
+    c.space === userAnswers.space &&
+    c.light === userAnswers.light &&
+    c.level === userAnswers.level
+  );
+  const images = await Promise.all(matches.map(m => loadImg(m.img)));
+
+  const PAD = 40;
+  const cardStartY = 154;
+  const cardGap = 16;
+  const availH = H - cardStartY - 60;
+  const cardH  = (availH - (matches.length - 1) * cardGap) / Math.max(matches.length, 1);
+  const cardW  = W - PAD * 2;
+  const IMG_SIZE = Math.min(cardH - 48, 190);
+
+  matches.forEach((crop, i) => {
+    const guide = getGrowGuide(crop.name);
+    const cx = PAD;
+    const cy = cardStartY + i * (cardH + cardGap);
+
+    // Card background
+    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+    rr(cx, cy, cardW, cardH, 18); ctx.fill();
+    ctx.strokeStyle = 'rgba(139,203,123,0.13)'; ctx.lineWidth = 1.5;
+    rr(cx, cy, cardW, cardH, 18); ctx.stroke();
+
+    // Crop image
+    const imgX = cx + 24, imgY = cy + (cardH - IMG_SIZE) / 2;
+    if (images[i]) {
+      ctx.save();
+      rr(imgX, imgY, IMG_SIZE, IMG_SIZE, 12); ctx.clip();
+      const img = images[i];
+      const sc = Math.max(IMG_SIZE / img.width, IMG_SIZE / img.height);
+      const dw = img.width * sc, dh = img.height * sc;
+      ctx.drawImage(img, imgX + (IMG_SIZE - dw)/2, imgY + (IMG_SIZE - dh)/2, dw, dh);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = 'rgba(139,203,123,0.1)';
+      rr(imgX, imgY, IMG_SIZE, IMG_SIZE, 12); ctx.fill();
+    }
+
+    // Text
+    const textX = imgX + IMG_SIZE + 24;
+    const textW = cardW - IMG_SIZE - 64;
+    ctx.textAlign = 'left';
+
+    // Name
+    ctx.fillStyle = '#e8f5e8';
+    ctx.font = 'bold 22px system-ui, sans-serif';
+    ctx.fillText(crop.name, textX, cy + 44);
+
+    // Reason — word-wrap
+    ctx.fillStyle = 'rgba(232,245,232,0.58)';
+    ctx.font = '400 13px system-ui, sans-serif';
+    const words = crop.reason.split(' ');
+    let line = '', lines = [];
+    for (const w of words) {
+      const test = line + w + ' ';
+      if (ctx.measureText(test).width > textW && line) { lines.push(line.trim()); line = w + ' '; }
+      else line = test;
+    }
+    lines.push(line.trim());
+    lines.slice(0, 3).forEach((l, li) => ctx.fillText(l, textX, cy + 68 + li * 18));
+
+    // Stat chips
+    const stats = [
+      { label: 'pH', val: guide.ph },
+      { label: 'EC', val: guide.ec },
+      { label: 'Temp', val: guide.temp },
+      { label: 'Harvest', val: guide.harvest },
+    ];
+    const chipW = (textW - 12) / 4;
+    const statRowY = cy + cardH - 58;
+    stats.forEach((s, si) => {
+      const sx = textX + si * (chipW + 4);
+      ctx.fillStyle = 'rgba(139,203,123,0.1)';
+      rr(sx, statRowY, chipW, 42, 8); ctx.fill();
+      ctx.strokeStyle = 'rgba(139,203,123,0.15)'; ctx.lineWidth = 1;
+      rr(sx, statRowY, chipW, 42, 8); ctx.stroke();
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#8bcb7b';
+      ctx.font = '600 10px system-ui, sans-serif';
+      ctx.fillText(s.label.toUpperCase(), sx + chipW/2, statRowY + 15);
+      ctx.fillStyle = '#e8f5e8';
+      ctx.font = '600 12px system-ui, sans-serif';
+      ctx.fillText(s.val, sx + chipW/2, statRowY + 31);
+    });
+    ctx.textAlign = 'left';
+  });
+
+  // Footer
+  ctx.textAlign = 'center';
+  ctx.fillStyle = accent;
+  ctx.fillRect(0, H - 3, W, 3);
+  ctx.fillStyle = 'rgba(139,203,123,0.4)';
+  ctx.font = '500 12px system-ui, sans-serif';
+  ctx.fillText('farmspherica.com', W/2, H - 18);
+
+  // Trigger download
+  try {
+    const a = document.createElement('a');
+    a.download = `crop-matches-${userAnswers.space}.png`;
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  } catch(e) {
+    alert('Image download blocked. Try opening the app via a local server (e.g. Live Server).');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = originalHTML;
 }
 
 function getGrowGuide(cropName) {
@@ -427,8 +608,8 @@ function startOver() {
   history.pushState({}, '', window.location.pathname);
 
   // Remove injected elements to avoid duplication on re-entry
-  const copyBtn = document.getElementById('copy-link-btn');
-  if (copyBtn) copyBtn.remove();
+  const dlBtn = document.getElementById('download-card-btn');
+  if (dlBtn) dlBtn.remove();
   const resLink = document.getElementById('global-resource-link');
   if (resLink) resLink.remove();
 
