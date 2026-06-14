@@ -2,8 +2,8 @@
 const crops = [
   // ==================== BEGINNER BRACKET ====================
   // Windowsill + Low + Beginner
-  { name: "Peppermint", img: "assets/peppermint.png", reason: "Hardy, shallow-rooting, and handles lower light frames effortlessly.", space: "windowsill", light: "low", level: "beginner" },
-  { name: "Spearmint", img: "assets/spearmint.png", reason: "Thrives in constrained window boxes with minimal light requirements.", space: "windowsill", light: "low", level: "beginner" },
+  { name: "Peppermint", img: "assets/peppermint.png", reason: "Easy to grow and has an amazing scent.", space: "windowsill", light: "low", level: "beginner" },
+  { name: "Spearmint", img: "assets/spearmint.png", reason: "Thrives in small window boxes with minimal light requirements.", space: "windowsill", light: "low", level: "beginner" },
 
   // Windowsill + Medium + Beginner
   { name: "Butterhead Lettuce", img: "assets/lettuce.png", reason: "The beginner favorite. Fast leaf production under average light.", space: "windowsill", light: "medium", level: "beginner" },
@@ -89,7 +89,14 @@ let userAnswers = {};
 // 3. Execution Logic
 function startQuiz() {
   document.getElementById('landing-section').classList.add('hidden');
-  document.getElementById('quiz-section').classList.remove('hidden');
+  
+  const quizSec = document.getElementById('quiz-section');
+  quizSec.classList.remove('hidden');
+  
+  // Minimal 10ms timeout forces the browser to register the smooth transition entry
+  setTimeout(() => {
+    quizSec.classList.add('section-visible');
+  }, 10);
   renderQuestion(); 
 }
 
@@ -135,6 +142,7 @@ function renderQuestion() {
 
 // Separate helper function to draw the buttons right when typing finishes
 function renderOptions(q, optionsBox, sunOverlay) {
+    document.getElementById('quiz-section').classList.add('expanded');
   q.options.forEach(opt => {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
@@ -203,14 +211,20 @@ function handleAnswer(questionId, answer) {
 }
 
 function showResults() {
+  document.getElementById('quiz-section').classList.remove('section-visible');
   document.getElementById('quiz-section').classList.add('hidden');
-  const resultsSection = document.getElementById('results-section');
-  resultsSection.classList.remove('hidden');
-  resultsSection.classList.add('fade-in');
-  // Triggers a green and white confetti explosion
-  confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#2f7d32', '#a5d6a7', '#ffffff'] });
+  
+  const resultsSec = document.getElementById('results-section');
+  resultsSec.classList.remove('hidden');
+  
+  setTimeout(() => {
+    resultsSec.classList.add('section-visible');
+  }, 10);
 
-  // SUPER STRICT MATCH: Triple Equality Validation
+  // --- UPGRADE: UNLOCK MOVING GRADIENT FOR ENTIRE PAGE BACKGROUND ---
+  document.body.classList.add('results-active');
+
+  // SUPER STRICT FILTER
   let matches = crops.filter(crop => {
     return crop.space === userAnswers.space && 
            crop.light === userAnswers.light && 
@@ -220,7 +234,6 @@ function showResults() {
   const resultsBox = document.getElementById('results-container');
   resultsBox.innerHTML = '';
 
-  // Appends exactly the 2 targeted matches mapped out above
   matches.forEach(crop => {
     resultsBox.innerHTML += `
       <div class="card">
@@ -228,19 +241,69 @@ function showResults() {
         <div class="card-content">
           <h3>${crop.name}</h3>
           <p>${crop.reason}</p>
+          
+          <div class="card-pills">
+            <span class="mini-tag">${userAnswers.space}</span>
+            <span class="mini-tag">${userAnswers.light} light</span>
+            <span class="mini-tag">${userAnswers.level}</span>
+          </div>
         </div>
       </div>
     `;
   });
+
+ 
+
+  // 2. Clear out any old global link if it exists to avoid duplication
+  const existingLink = document.getElementById('global-resource-link');
+  if (existingLink) existingLink.remove();
+
+  // 3. Inject ONE single link perfectly below BOTH cards at the bottom of the section
+  resultsSec.insertAdjacentHTML('beforeend', `
+    <a href="https://farmspherica.com" target="_blank" id="global-resource-link" class="resource-link">
+      [ Learn more about Hydroponics at Farmspherica ↗ ]
+    </a>
+  `);
+}
+
+
+// NEW HELPER: Generates beautiful, locked-down parameter badges
+function renderStaticPills() {
+  const keys = ['space', 'light', 'level'];
+  const pillBox = document.getElementById('active-pills-container') || createPillContainer();
+  pillBox.innerHTML = '';
+
+  keys.forEach(key => {
+    const pill = document.createElement('div');
+    pill.className = 'static-pill';
+    
+    // Grabs the value the user selected and capitalizes it nicely
+    const val = userAnswers[key];
+    pill.innerText = `${key.toUpperCase()}: ${val.charAt(0).toUpperCase() + val.slice(1)}`;
+    
+    pillBox.appendChild(pill);
+  });
+}
+
+function createPillContainer() {
+  const container = document.createElement('div');
+  container.id = 'active-pills-container';
+  const resultsSection = document.getElementById('results-section');
+  // Pin them cleanly above the generated plant cards grid
+  resultsSection.insertBefore(container, document.getElementById('results-container'));
+  return container;
 }
 
 function startOver() {
   currentStep = 0;
   userAnswers = {};
   
-  // Hide the results section
+  // Cleanly clear visibility states
+  document.getElementById('results-section').classList.remove('section-visible');
   document.getElementById('results-section').classList.add('hidden');
   
-  // Bring back the main home/landing page
+  // --- UPGRADE: REMOVE MOVING GRADIENT AND RETURN TO STATIC BACKGROUND ---
+  document.body.classList.remove('results-active');
+  
   document.getElementById('landing-section').classList.remove('hidden');
 }

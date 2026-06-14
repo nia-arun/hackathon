@@ -12,12 +12,28 @@
 body {
   background: var(--paper);
   color: var(--ink);
-  font-family: 'Inter Tight', -apple-system, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   line-height: 1.6;
+}
+#question-text {
+  font-weight: 800 !important; /* Forces the browser to use the maximum thickness */
+  font-size: 2.4rem;
+  letter-spacing: -0.03em;    /* Tighter tracking gives it that premium editorial look */
+  color: #111111;
+  line-height: 1.15;
+}
+
+/* The thick crop titles on the results cards */
+.card-content h3 {
+  font-weight: 700 !important;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  color: #111111;
+  margin-bottom: 6px;
 }
 
 /* --- Sunlight Effect FIX --- */
@@ -196,15 +212,38 @@ body {
   100% { background-position: 0% 50%; }
 }
 
-/* 2. Frosted Glass UI */
-#quiz-section, #results-section {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 24px;
-  padding: 40px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+/* ==========================================
+   LIQUID CONTAINER SMOOTH STRETCH
+   ========================================== */
+/* ==========================================
+   SAFE LIQUID CONTAINER STRETCH
+   ========================================== */
+#quiz-section {
+  /* Keep all your original padding, background, and borders exactly as they are */
+  
+  max-height: 180px; /* Locks it small while the question text types out */
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1); /* Premium fluid curve */
+}
+
+/* When this class is added, it opens up to fit the buttons smoothly */
+#quiz-section.expanded {
+  max-height: 600px; /* A safe upper limit that accommodates all option buttons */
+}
+
+/* Ensure the options container handles its visibility smoothly */
+#options-container {
+  grid-row: 2; /* Forces options into the expanding lower section */
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Once expanded, fade the buttons into view cleanly */
+#quiz-section.expanded #options-container {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.15s; /* Waits just a beat for the card to start stretching */
 }
 
 /* Satisfying Button Physics */
@@ -358,4 +397,200 @@ body {
 @keyframes caretBlink {
   from, to { border-color: transparent; }
   50% { border-color: #2f7d32; }
+}
+
+
+/* Wrapper to line up the pills neatly inside the card text flow */
+.card-pills {
+  display: flex;
+  gap: 6px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+/* Micro-sized luxury hardware tags */
+.mini-tag {
+  background: rgba(47, 125, 50, 0.05);
+  border: 1px solid rgba(47, 125, 50, 0.12);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  color: #2f7d32;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-family: monospace;
+  letter-spacing: 0.02em;
+}
+
+/* Premium micro-styling for the single global anchor link below everything */
+#global-resource-link {
+  display: block;
+  text-align: center;
+  margin: 40px auto 0 auto;
+  color: #2f7d32;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-family: monospace;
+  letter-spacing: 0.05em;
+  transition: opacity 0.2s ease;
+  width: max-content;
+}
+
+#global-resource-link:hover {
+  opacity: 0.65;
+}
+/* ==========================================
+   PREMIUM MOTION CONTROL LAYER 
+   ========================================== */
+
+/* Overrides the harsh snapping of your hidden state with a smooth transition */
+#quiz-section, #results-section {
+  opacity: 0;
+  transform: translateY(15px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* This class triggers the elegant hardware-accelerated glide */
+.section-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Staggers the final results cards so they flow into view gracefully */
+.card {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: cardEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.card:nth-child(1) { animation-delay: 0.15s; }
+.card:nth-child(2) { animation-delay: 0.3s; }
+
+@keyframes cardEntrance {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================
+   DYNAMIC MAIN WEB BACKGROUND FOR RESULTS
+   ========================================== */
+
+/* This class will be applied to the global body tag when results screen triggers */
+body.results-active {
+  background: linear-gradient(-45deg, #f5f7f6, #8bcb7be6, #e4f0d0, #ffffff);
+  background-size: 400% 400%;
+  animation: dynamicBgShift 10s ease infinite;
+  transition: background 0.8s ease; /* Smooth transition out of your static background */
+}
+
+@keyframes dynamicBgShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+/* ==========================================
+   MINIMALIST INK LINE PROGRESS TRACKER
+   ========================================== */
+
+/* The invisible track running perfectly along the top edge */
+#progress-bar-channel {
+  width: 100%;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.04); /* Ultra-faint baseline track */
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  border-top-left-radius: 12px;  /* Matches your frosted container corner curves */
+  border-top-right-radius: 12px;
+}
+
+/* The liquid ink fill that grows dynamically */
+#progress-bar-fill {
+  height: 100%;
+  width: 0%; /* JavaScript handles this value dynamically */
+  background: #2f7d32; /* Your signature signature green accent */
+  
+  /* High-end Variable Velocity: snaps forward then eases to a stop */
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================
+   CINEMATIC ATMOSPHERIC DUST PARTICLES
+   ========================================== */
+
+/* The background canvas holding the atmosphere */
+.dust-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  pointer-events: none; /* Makes them completely invisible to mouse clicks */
+  z-index: 0;           /* Sits them safely behind your text and buttons */
+}
+
+/* ==========================================
+   EXPANDED WHITE DUST LAYER (10 PARTICLES)
+   ========================================== */
+
+.dust-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dust-container div {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.91); /* Crisp, clean semi-transparent white */
+  border-radius: 50%;
+  filter: blur(1px);
+  animation: floatDust 20s linear infinite;
+}
+
+/* Original 5 particles with tweaked positions */
+.dust-container div:nth-child(1) { width: 4px; height: 4px; left: 10%; top: 80%; animation-duration: 22s; animation-delay: 0s; }
+.dust-container div:nth-child(2) { width: 6px; height: 6px; left: 35%; top: 40%; animation-duration: 28s; animation-delay: -5s; opacity: 0.5; }
+.dust-container div:nth-child(3) { width: 3px; height: 3px; left: 75%; top: 15%; animation-duration: 18s; animation-delay: -2s; }
+.dust-container div:nth-child(4) { width: 5px; height: 5px; left: 85%; top: 60%; animation-duration: 25s; animation-delay: -8s; opacity: 0.4; }
+.dust-container div:nth-child(5) { width: 7px; height: 7px; left: 20%; top: 15%; animation-duration: 32s; animation-delay: -12s; opacity: 0.3; }
+
+/* New 5 particles filling in the gaps for maximum aesthetic drift */
+.dust-container div:nth-child(6) { width: 3px; height: 3px; left: 50%; top: 70%; animation-duration: 20s; animation-delay: -4s; }
+.dust-container div:nth-child(7) { width: 5px; height: 5px; left: 60%; top: 30%; animation-duration: 26s; animation-delay: -15s; opacity: 0.6; }
+.dust-container div:nth-child(8) { width: 8px; height: 8px; left: 90%; top: 10%; animation-duration: 34s; animation-delay: -7s; filter: blur(2px); opacity: 0.2; } /* Large, ultra-soft background speck */
+.dust-container div:nth-child(9) { width: 4px; height: 4px; left: 45%; top: 85%; animation-duration: 23s; animation-delay: -1s; }
+.dust-container div:nth-child(10) { width: 6px; height: 6px; left: 5%; top: 50%; animation-duration: 29s; animation-delay: -10s; opacity: 0.4; }
+
+/* The smooth vertical drift physics loop */
+@keyframes floatDust {
+  0% {
+    transform: translateY(105vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+  }
+  90% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-5vh) translateX(45px) rotate(360deg);
+    opacity: 0;
+  }
 }
