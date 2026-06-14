@@ -10,9 +10,10 @@ Instead of relying on standard, copy-pasted UI frameworks, I wanted the app to f
 ## °❀ The Cool Stuff Inside
 
 * **Bespoke Whimsy:** I brought personality into the app using custom hand-drawn elements paired with smooth, moving color gradients in the background so the app never feels flat or static.
-* **Melloida DEMO Typography:** I swapped out standard browser fonts for a heavy, high-contrast display typeface. It’s used strictly for the quiz questions and card headers to give the project a bold, premium editorial look.
 * **White Dust Particles:** To add atmospheric depth without cluttering the screen, I built a background engine where semi-transparent white dust specks lazily drift up the screen.
 * **Botanical Aura Cursor:** Your mouse pointer acts like a soft flashlight. I mapped a smooth, leaf-green ambient glow that tracks your cursor and subtly tints the background as you move across the page.
+* **A little confetti celebration when you get your results:** * To make it a bit more fun and exciting when you get your results
+* **pH and Other requirements for growing the crop:** * The cards with crops on them expand when you hover over them, displaying ideal requirements for you to smoothly grow your desired crops.
 
 ---
 
