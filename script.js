@@ -367,53 +367,10 @@ async function downloadResultCard(btn) {
     img.src = src;
   });
 
-  // ---- background ----
-  const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0,   '#0b1c0c');
-  bg.addColorStop(0.45,'#112114');
-  bg.addColorStop(1,   '#0b1c0c');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
+  // ---- load template background ----
+  const templateBg = await loadImg('assets/card-bg.png');
 
-  // Dot grid
-  ctx.fillStyle = 'rgba(255,255,255,0.025)';
-  for (let x = 30; x < W; x += 50)
-    for (let y = 30; y < H; y += 50) {
-      ctx.beginPath(); ctx.arc(x, y, 1.5, 0, Math.PI*2); ctx.fill();
-    }
-
-  // Top accent bar
-  const accent = ctx.createLinearGradient(0, 0, W, 0);
-  accent.addColorStop(0,   'rgba(139,203,123,0)');
-  accent.addColorStop(0.5, 'rgba(139,203,123,0.8)');
-  accent.addColorStop(1,   'rgba(139,203,123,0)');
-  ctx.fillStyle = accent;
-  ctx.fillRect(0, 0, W, 3);
-
-  // Header area
-  ctx.fillStyle = 'rgba(47,125,50,0.08)';
-  ctx.fillRect(0, 0, W, 120);
-
-  ctx.fillStyle = '#8bcb7b';
-  ctx.font = '600 11px system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('FARMSPHERICA INNOVATIONS', W / 2, 40);
-
-  ctx.fillStyle = '#e8f5e8';
-  ctx.font = 'bold 34px system-ui, sans-serif';
-  ctx.fillText('Your Crop Matches', W / 2, 86);
-
-  // Answers pill
-  const pillTxt = `${userAnswers.space}  ·  ${userAnswers.light} light  ·  ${userAnswers.level}`;
-  ctx.fillStyle = 'rgba(139,203,123,0.1)';
-  rr(W/2 - 165, 100, 330, 36, 18); ctx.fill();
-  ctx.strokeStyle = 'rgba(139,203,123,0.22)'; ctx.lineWidth = 1;
-  rr(W/2 - 165, 100, 330, 36, 18); ctx.stroke();
-  ctx.fillStyle = '#8bcb7b';
-  ctx.font = '500 13px system-ui, sans-serif';
-  ctx.fillText(pillTxt, W / 2, 122);
-
-  // ---- matches ----
+  // We filter the crops to matches first to know how many to draw
   const matches = crops.filter(c =>
     c.space === userAnswers.space &&
     c.light === userAnswers.light &&
@@ -421,24 +378,113 @@ async function downloadResultCard(btn) {
   );
   const images = await Promise.all(matches.map(m => loadImg(m.img)));
 
-  const PAD = 40;
-  const cardStartY = 154;
-  const cardGap = 16;
-  const availH = H - cardStartY - 60;
-  const cardH  = (availH - (matches.length - 1) * cardGap) / Math.max(matches.length, 1);
-  const cardW  = W - PAD * 2;
-  const IMG_SIZE = Math.min(cardH - 48, 190);
+  let slots = [];
+  let useFallbackBg = false;
+
+  if (templateBg) {
+    ctx.drawImage(templateBg, 0, 0, W, H);
+    
+    // Dynamic answers pill - centered, sleek, matching the template vibe
+    const pillTxt = `${userAnswers.space.toUpperCase()}  ·  ${userAnswers.light.toUpperCase()} LIGHT  ·  ${userAnswers.level.toUpperCase()}`;
+    ctx.fillStyle = 'rgba(47, 125, 50, 0.08)';
+    rr(W/2 - 150, 208, 300, 26, 13); ctx.fill();
+    ctx.strokeStyle = 'rgba(47, 125, 50, 0.2)'; ctx.lineWidth = 1;
+    rr(W/2 - 150, 208, 300, 26, 13); ctx.stroke();
+    
+    ctx.fillStyle = '#2f7d32';
+    ctx.font = '600 11px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(pillTxt, W / 2, 225);
+
+    // Map exactly to your Canva template's slot bounding boxes
+    slots = [
+      { top: 242, left: 80, width: 660, height: 290 },
+      { top: 572, left: 80, width: 660, height: 290 }
+    ];
+  } else {
+    useFallbackBg = true;
+    // Fallback: A beautiful light gradient background matching the website's breathing vibe
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0,   '#f4fbf4');
+    bg.addColorStop(0.5, '#ffffff');
+    bg.addColorStop(1,   '#eaf3ea');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Subtle light dot grid
+    ctx.fillStyle = 'rgba(47, 125, 50, 0.04)';
+    for (let x = 30; x < W; x += 50)
+      for (let y = 30; y < H; y += 50) {
+        ctx.beginPath(); ctx.arc(x, y, 1.5, 0, Math.PI*2); ctx.fill();
+      }
+
+    // Top accent bar
+    const accent = ctx.createLinearGradient(0, 0, W, 0);
+    accent.addColorStop(0,   'rgba(47, 125, 50, 0)');
+    accent.addColorStop(0.5, 'rgba(47, 125, 50, 0.6)');
+    accent.addColorStop(1,   'rgba(47, 125, 50, 0)');
+    ctx.fillStyle = accent;
+    ctx.fillRect(0, 0, W, 3);
+
+    // Header area highlight
+    ctx.fillStyle = 'rgba(47, 125, 50, 0.03)';
+    ctx.fillRect(0, 0, W, 120);
+
+    // Header Branding text
+    ctx.fillStyle = '#2f7d32';
+    ctx.font = '600 11px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('FARMSPHERICA INNOVATIONS', W / 2, 40);
+
+    // Header Title
+    ctx.fillStyle = '#14110F';
+    ctx.font = 'bold 34px system-ui, sans-serif';
+    ctx.fillText('Your Crop Matches', W / 2, 86);
+
+    // Answers pill
+    const pillTxt = `${userAnswers.space}  ·  ${userAnswers.light} light  ·  ${userAnswers.level}`;
+    ctx.fillStyle = 'rgba(47, 125, 50, 0.06)';
+    rr(W/2 - 165, 100, 330, 36, 18); ctx.fill();
+    ctx.strokeStyle = 'rgba(47, 125, 50, 0.15)'; ctx.lineWidth = 1;
+    rr(W/2 - 165, 100, 330, 36, 18); ctx.stroke();
+    ctx.fillStyle = '#2f7d32';
+    ctx.font = '600 13px system-ui, sans-serif';
+    ctx.fillText(pillTxt, W / 2, 122);
+
+    // Dynamic slot height layout for fallback
+    const PAD = 40;
+    const cardStartY = 154;
+    const cardGap = 16;
+    const availH = H - cardStartY - 60;
+    const cardH  = (availH - (matches.length - 1) * cardGap) / Math.max(matches.length, 1);
+    const cardW  = W - PAD * 2;
+    slots = matches.map((_, i) => ({
+      top: cardStartY + i * (cardH + cardGap),
+      left: PAD,
+      width: cardW,
+      height: cardH
+    }));
+  }
 
   matches.forEach((crop, i) => {
     const guide = getGrowGuide(crop.name);
-    const cx = PAD;
-    const cy = cardStartY + i * (cardH + cardGap);
+    const slot = slots[i];
+    if (!slot) return;
 
-    // Card background
-    ctx.fillStyle = 'rgba(255,255,255,0.04)';
-    rr(cx, cy, cardW, cardH, 18); ctx.fill();
-    ctx.strokeStyle = 'rgba(139,203,123,0.13)'; ctx.lineWidth = 1.5;
-    rr(cx, cy, cardW, cardH, 18); ctx.stroke();
+    const cx = slot.left;
+    const cy = slot.top;
+    const cardW = slot.width;
+    const cardH = slot.height;
+
+    const IMG_SIZE = Math.min(cardH - 48, 190);
+
+    // Card background - Crisp white container with elegant borders (only for fallback layout)
+    if (useFallbackBg) {
+      ctx.fillStyle = '#ffffff';
+      rr(cx, cy, cardW, cardH, 18); ctx.fill();
+      ctx.strokeStyle = 'rgba(47, 125, 50, 0.12)'; ctx.lineWidth = 1.5;
+      rr(cx, cy, cardW, cardH, 18); ctx.stroke();
+    }
 
     // Crop image
     const imgX = cx + 24, imgY = cy + (cardH - IMG_SIZE) / 2;
@@ -451,7 +497,7 @@ async function downloadResultCard(btn) {
       ctx.drawImage(img, imgX + (IMG_SIZE - dw)/2, imgY + (IMG_SIZE - dh)/2, dw, dh);
       ctx.restore();
     } else {
-      ctx.fillStyle = 'rgba(139,203,123,0.1)';
+      ctx.fillStyle = 'rgba(47, 125, 50, 0.05)';
       rr(imgX, imgY, IMG_SIZE, IMG_SIZE, 12); ctx.fill();
     }
 
@@ -461,12 +507,12 @@ async function downloadResultCard(btn) {
     ctx.textAlign = 'left';
 
     // Name
-    ctx.fillStyle = '#e8f5e8';
+    ctx.fillStyle = '#14110F';
     ctx.font = 'bold 22px system-ui, sans-serif';
     ctx.fillText(crop.name, textX, cy + 44);
 
     // Reason — word-wrap
-    ctx.fillStyle = 'rgba(232,245,232,0.58)';
+    ctx.fillStyle = '#5b6b5c';
     ctx.font = '400 13px system-ui, sans-serif';
     const words = crop.reason.split(' ');
     let line = '', lines = [];
@@ -489,28 +535,28 @@ async function downloadResultCard(btn) {
     const statRowY = cy + cardH - 58;
     stats.forEach((s, si) => {
       const sx = textX + si * (chipW + 4);
-      ctx.fillStyle = 'rgba(139,203,123,0.1)';
+      ctx.fillStyle = 'rgba(47, 125, 50, 0.05)';
       rr(sx, statRowY, chipW, 42, 8); ctx.fill();
-      ctx.strokeStyle = 'rgba(139,203,123,0.15)'; ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(47, 125, 50, 0.12)'; ctx.lineWidth = 1;
       rr(sx, statRowY, chipW, 42, 8); ctx.stroke();
       ctx.textAlign = 'center';
-      ctx.fillStyle = '#8bcb7b';
+      ctx.fillStyle = '#2f7d32';
       ctx.font = '600 10px system-ui, sans-serif';
       ctx.fillText(s.label.toUpperCase(), sx + chipW/2, statRowY + 15);
-      ctx.fillStyle = '#e8f5e8';
+      ctx.fillStyle = '#14110F';
       ctx.font = '600 12px system-ui, sans-serif';
       ctx.fillText(s.val, sx + chipW/2, statRowY + 31);
     });
     ctx.textAlign = 'left';
   });
 
-  // Footer
-  ctx.textAlign = 'center';
-  ctx.fillStyle = accent;
-  ctx.fillRect(0, H - 3, W, 3);
-  ctx.fillStyle = 'rgba(139,203,123,0.4)';
-  ctx.font = '500 12px system-ui, sans-serif';
-  ctx.fillText('farmspherica.com', W/2, H - 18);
+  // Footer (only for fallback layout, as the user's template has its own footer)
+  if (useFallbackBg) {
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(47, 125, 50, 0.5)';
+    ctx.font = '600 12px system-ui, sans-serif';
+    ctx.fillText('farmspherica.com', W/2, H - 18);
+  }
 
   // Trigger download
   try {
