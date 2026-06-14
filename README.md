@@ -12,8 +12,10 @@ Instead of relying on standard, copy-pasted UI frameworks, I wanted the app to f
 * **Bespoke Whimsy:** I brought personality into the app using custom hand-drawn elements paired with smooth, moving color gradients in the background so the app never feels flat or static.
 * **White Dust Particles:** To add atmospheric depth without cluttering the screen, I built a background engine where semi-transparent white dust specks lazily drift up the screen.
 * **Botanical Aura Cursor:** Your mouse pointer acts like a soft flashlight. I mapped a smooth, leaf-green ambient glow that tracks your cursor and subtly tints the background as you move across the page.
-* **A little confetti celebration when you get your results:** * To make it a bit more fun and exciting when you get your results
-* **pH and Other requirements for growing the crop:** * The cards with crops on them expand when you hover over them, displaying ideal requirements for you to smoothly grow your desired crops.
+* **Confetti Celebration:** A burst of confetti drops when your results load to celebrate your matches.
+* **Interactive Grow Specs:** Hovering over the crop cards expands them, showing exact pH, EC, Temp, and Harvest values so you know how to grow them.
+* **Keyboard Navigation:** You can select quiz options by pressing the 1, 2, or 3 keys on your keyboard instead of clicking, which feels super fast and accessible.
+* **Custom Grow Card Downloader:** You can download a beautiful, high-resolution card showing your matches and a dynamically calculated 10L nutrient recipe based on the plant's EC level, drawn directly on top of a custom Canva template.
 
 ---
 
