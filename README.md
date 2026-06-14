@@ -29,4 +29,6 @@ Instead of relying on standard, copy-pasted UI frameworks, I wanted the app to f
 1. Clone the repo.
 2. Open `index.html` and hit it with a hard refresh (`Ctrl + F5` or `Cmd + Shift + R`) to load the custom typography and background layers cleanly.
 
-Created by Nia for The Founder's Web X Farmspherica.
+## About Me 𐔌՞ ܸ.ˬ.ܸ՞𐦯
+
+My name is Nia and I'm currently in 9th grade, at Chrysalis High. I made this for a hackathon - The Founder's Web x Farmspherica. I'm a beginner at coding but I'm really interested in learning more about it. I'm also really interested in plants and gardening, so I thought this would be a fun project to work on.
