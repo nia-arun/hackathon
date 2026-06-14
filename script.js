@@ -241,15 +241,15 @@ function showResults() {
             <div class="grow-guide-title">Grow Guide Specs</div>
             <div class="grow-guide-grid">
               <div class="guide-stat">
-                <span class="stat-label">pH Target</span>
+                <span class="stat-label">pH</span>
                 <span class="stat-val">${guide.ph}</span>
               </div>
               <div class="guide-stat">
-                <span class="stat-label">EC Nutrient</span>
+                <span class="stat-label">EC</span>
                 <span class="stat-val">${guide.ec}</span>
               </div>
               <div class="guide-stat">
-                <span class="stat-label">Ideal Temp</span>
+                <span class="stat-label">Temp</span>
                 <span class="stat-val">${guide.temp}</span>
               </div>
               <div class="guide-stat">
