@@ -101,6 +101,16 @@ function startQuiz() {
   renderQuestion(); 
 }
 
+// ---- localStorage helpers ----
+function saveProgress() {
+  localStorage.setItem('cf_step', currentStep);
+  localStorage.setItem('cf_answers', JSON.stringify(userAnswers));
+}
+function clearProgress() {
+  localStorage.removeItem('cf_step');
+  localStorage.removeItem('cf_answers');
+}
+
 function renderQuestion() {
   isTyping = true;
   const q = questions[currentStep];
@@ -113,6 +123,8 @@ function renderQuestion() {
   qContainer.classList.add('fade-in');
 
   document.getElementById('step-indicator').innerText = `Step 0${currentStep + 1} // 0${questions.length}`;
+  // Dynamic page title update
+  document.title = `Step ${currentStep + 1} of ${questions.length} | Farmspherica`;
 
   // Update back button visibility
   const backBtn = document.getElementById('btn-back');
@@ -177,29 +189,24 @@ function renderOptions(q, optionsBox, sunOverlay) {
   });
 }
 
-// Leaf burst animation then advance
+// Micro-animation: lock buttons briefly then advance
 function triggerSelection(btn, questionId, answer) {
   if (isTyping) return;
 
-  // Inject leaf burst element
-  const leaf = document.createElement('span');
-  leaf.className = 'leaf-burst';
-  leaf.textContent = '🌿';
-  btn.appendChild(leaf);
-
-  // Lock all buttons during animation
+  // Lock all buttons during transition
   const allBtns = document.querySelectorAll('.option-btn');
   allBtns.forEach(b => b.style.pointerEvents = 'none');
 
-  // Wait for burst to play, then advance
+  // Brief pause so kbd-active highlight is visible, then advance
   setTimeout(() => {
     handleAnswer(questionId, answer);
-  }, 420);
+  }, 120);
 }
 function handleAnswer(questionId, answer) {
   if (isTyping) return;
   userAnswers[questionId] = answer;
   currentStep++;
+  saveProgress(); // persist after each answer
   
   if (currentStep < questions.length) {
     renderQuestion();
@@ -233,8 +240,14 @@ function showResults() {
   const params = new URLSearchParams(userAnswers);
   history.pushState({}, '', '?' + params.toString());
 
+  // Dynamic page title
+  document.title = `Your Matches | Farmspherica`;
+
   // --- UPGRADE: UNLOCK MOVING GRADIENT FOR ENTIRE PAGE BACKGROUND ---
   document.body.classList.add('results-active');
+
+  // Clear saved progress now that we reached the results
+  clearProgress();
 
   // SUPER STRICT FILTER
   let matches = crops.filter(crop => {
@@ -246,10 +259,12 @@ function showResults() {
   const resultsBox = document.getElementById('results-container');
   resultsBox.innerHTML = '';
 
-  matches.forEach(crop => {
+  matches.forEach((crop, i) => {
     const guide = getGrowGuide(crop.name);
-    resultsBox.innerHTML += `
-      <div class="card">
+    const card = document.createElement('div');
+    card.className = 'card card-stagger';
+    card.style.animationDelay = `${i * 120}ms`;
+    card.innerHTML = `
         <img src="${crop.img}" alt="${crop.name}" class="card-img">
         <div class="card-content">
           <h3>${crop.name}</h3>
@@ -285,8 +300,8 @@ function showResults() {
           </div>
 
         </div>
-      </div>
-    `;
+      `;
+    resultsBox.appendChild(card);
   });
 
 
@@ -301,16 +316,33 @@ function showResults() {
     });
   }
 
-  // 2. Clear out any old global link if it exists to avoid duplication
+  // Clear out any old Copy Link / resource link if it exists
+  const existingCopyBtn = document.getElementById('copy-link-btn');
+  if (existingCopyBtn) existingCopyBtn.remove();
   const existingLink = document.getElementById('global-resource-link');
   if (existingLink) existingLink.remove();
 
-  // 3. Inject ONE single link perfectly below BOTH cards at the bottom of the section
+  // Inject Copy Link button above the Farmspherica link
   resultsSec.insertAdjacentHTML('beforeend', `
+    <button id="copy-link-btn" class="copy-link-btn" onclick="copyShareLink(this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+      Copy shareable link
+    </button>
     <a href="https://farmspherica.com" target="_blank" id="global-resource-link" class="resource-link">
       [ Learn more about Hydroponics at Farmspherica ↗ ]
     </a>
   `);
+}
+
+function copyShareLink(btn) {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!`;
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy shareable link`;
+    }, 2500);
+  });
 }
 
 function getGrowGuide(cropName) {
@@ -387,8 +419,18 @@ function startOver() {
   userAnswers = {};
   isTyping = false;
   
-  // Clear the shareable URL params
+  // Reset page title
+  document.title = 'Crop Finder | Farmspherica';
+
+  // Clear localStorage and shareable URL
+  clearProgress();
   history.pushState({}, '', window.location.pathname);
+
+  // Remove injected elements to avoid duplication on re-entry
+  const copyBtn = document.getElementById('copy-link-btn');
+  if (copyBtn) copyBtn.remove();
+  const resLink = document.getElementById('global-resource-link');
+  if (resLink) resLink.remove();
 
   // Cleanly clear visibility states
   document.getElementById('results-section').classList.remove('section-visible');
@@ -426,7 +468,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const btns = document.querySelectorAll('.option-btn');
     const target = btns[num - 1];
     if (target) {
-      // Briefly highlight the button so the user sees the key press registered
       target.classList.add('kbd-active');
       setTimeout(() => target.click(), 120);
     }
@@ -443,10 +484,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const validLevels = ['beginner', 'pro'];
 
   if (validSpaces.includes(space) && validLights.includes(light) && validLevels.includes(level)) {
-    // All three params are valid — restore answers and jump straight to results
     userAnswers = { space, light, level };
     currentStep = questions.length;
     document.getElementById('landing-section').classList.add('hidden');
     showResults();
+    return; // skip localStorage restore — URL takes priority
+  }
+
+  // --- LOCALSTORAGE: restore mid-quiz progress if present ---
+  const savedStep = localStorage.getItem('cf_step');
+  const savedAnswers = localStorage.getItem('cf_answers');
+  if (savedStep !== null && savedAnswers !== null) {
+    const parsedStep = parseInt(savedStep);
+    const parsedAnswers = JSON.parse(savedAnswers);
+    if (parsedStep > 0 && parsedStep < questions.length) {
+      currentStep = parsedStep;
+      userAnswers = parsedAnswers;
+      document.getElementById('landing-section').classList.add('hidden');
+      const quizSec = document.getElementById('quiz-section');
+      quizSec.classList.remove('hidden');
+      setTimeout(() => quizSec.classList.add('section-visible'), 10);
+      renderQuestion();
+    }
   }
 });
