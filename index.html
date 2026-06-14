@@ -16,8 +16,7 @@
     <div class="dust-container">
       <div></div><div></div><div></div><div></div><div></div>
       <div></div><div></div><div></div><div></div><div></div>
-      <div></div><div></div><div></div><div></div><div></div>
-      <div></div><div></div><div></div><div></div><div></div>
+    
     </div>
     <div id="sunbeam-cursor"></div>
   
@@ -34,7 +33,13 @@
     </section>
 
     <section id="quiz-section" class="hidden">
-      <div class="header-sub" id="step-indicator">Step 1 of 3</div>
+      <div class="quiz-header">
+        <button id="btn-back" class="btn-back hidden" onclick="goBack()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          <span>Back</span>
+        </button>
+        <div class="header-sub" id="step-indicator">Step 1 of 3</div>
+      </div>
       
       <h1 id="question-text">Loading...</h1>
       <div id="options-container" class="options-grid"></div>

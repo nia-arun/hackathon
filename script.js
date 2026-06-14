@@ -85,6 +85,7 @@ const questions = [
 
 let currentStep = 0;
 let userAnswers = {};
+let isTyping = false;
 
 // 3. Execution Logic
 function startQuiz() {
@@ -101,6 +102,7 @@ function startQuiz() {
 }
 
 function renderQuestion() {
+  isTyping = true;
   const q = questions[currentStep];
   const qContainer = document.getElementById('quiz-section');
   const sunOverlay = document.getElementById('sunlight-overlay');
@@ -111,6 +113,16 @@ function renderQuestion() {
   qContainer.classList.add('fade-in');
 
   document.getElementById('step-indicator').innerText = `Step 0${currentStep + 1} // 0${questions.length}`;
+
+  // Update back button visibility
+  const backBtn = document.getElementById('btn-back');
+  if (backBtn) {
+    if (currentStep > 0) {
+      backBtn.classList.remove('hidden');
+    } else {
+      backBtn.classList.add('hidden');
+    }
+  }
   
   // --- HIGH-TECH JS TYPING ENGINE ---
   const qTextElement = document.getElementById('question-text');
@@ -133,6 +145,7 @@ function renderQuestion() {
       // Typing finished! Remove the cursor line and drop the buttons down cleanly
       span.style.borderRight = "none";
       renderOptions(q, optionsBox, sunOverlay);
+      isTyping = false;
     }
   }
   
@@ -162,44 +175,8 @@ function renderOptions(q, optionsBox, sunOverlay) {
     optionsBox.appendChild(btn);
   });
 }
-  const q = questions[currentStep];
-  const qContainer = document.getElementById('quiz-section');
-  const sunOverlay = document.getElementById('sunlight-overlay');
-  
-  // Reset CSS animations cleanly
-  qContainer.classList.remove('fade-in');
-  void qContainer.offsetWidth; 
-  qContainer.classList.add('fade-in');
-
-  document.getElementById('step-indicator').innerText = `Step 0${currentStep + 1} // 0${questions.length}`;
-  document.getElementById('question-text').innerText = q.text;
-  
-  const optionsBox = document.getElementById('options-container');
-  optionsBox.innerHTML = ''; 
-
-  if (sunOverlay) sunOverlay.style.opacity = '0';
-
-  q.options.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'option-btn';
-    btn.innerText = opt;
-    
-    // Smooth opacity glow calculation
-    if (q.id === "light" && sunOverlay) {
-      let intensity = '0';
-      if (opt === "Low") intensity = '0.15';    
-      if (opt === "Medium") intensity = '0.4';  
-      if (opt === "Lots") intensity = '0.85';   
-      
-      btn.addEventListener('mouseenter', () => sunOverlay.style.opacity = intensity);
-      btn.addEventListener('mouseleave', () => sunOverlay.style.opacity = '0');
-    }
-
-    btn.onclick = () => handleAnswer(q.id, opt.toLowerCase());
-    optionsBox.appendChild(btn);
-  })
-
 function handleAnswer(questionId, answer) {
+  if (isTyping) return;
   userAnswers[questionId] = answer;
   currentStep++;
   
@@ -207,6 +184,16 @@ function handleAnswer(questionId, answer) {
     renderQuestion();
   } else {
     showResults();
+  }
+}
+
+function goBack() {
+  if (isTyping) return;
+  if (currentStep > 0) {
+    currentStep--;
+    const prevQuestionId = questions[currentStep].id;
+    delete userAnswers[prevQuestionId];
+    renderQuestion();
   }
 }
 
@@ -235,6 +222,7 @@ function showResults() {
   resultsBox.innerHTML = '';
 
   matches.forEach(crop => {
+    const guide = getGrowGuide(crop.name);
     resultsBox.innerHTML += `
       <div class="card">
         <img src="${crop.img}" alt="${crop.name}" class="card-img">
@@ -247,12 +235,46 @@ function showResults() {
             <span class="mini-tag">${userAnswers.light} light</span>
             <span class="mini-tag">${userAnswers.level}</span>
           </div>
+
+          <!-- Grow Guide details drawer -->
+          <div class="grow-guide-drawer">
+            <div class="grow-guide-title">Grow Guide Specs</div>
+            <div class="grow-guide-grid">
+              <div class="guide-stat">
+                <span class="stat-label">pH Target</span>
+                <span class="stat-val">${guide.ph}</span>
+              </div>
+              <div class="guide-stat">
+                <span class="stat-label">EC Nutrient</span>
+                <span class="stat-val">${guide.ec}</span>
+              </div>
+              <div class="guide-stat">
+                <span class="stat-label">Ideal Temp</span>
+                <span class="stat-val">${guide.temp}</span>
+              </div>
+              <div class="guide-stat">
+                <span class="stat-label">Harvest</span>
+                <span class="stat-val">${guide.harvest}</span>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     `;
   });
 
- 
+
+
+  // Fire Canvas Confetti to celebrate matches
+  if (typeof confetti === 'function') {
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#2f7d32', '#8bcb7b', '#aed581', '#f0f4c3']
+    });
+  }
 
   // 2. Clear out any old global link if it exists to avoid duplication
   const existingLink = document.getElementById('global-resource-link');
@@ -266,41 +288,91 @@ function showResults() {
   `);
 }
 
+function getGrowGuide(cropName) {
+  const lower = cropName.toLowerCase();
+  
+  // 1. Leafy greens
+  if (lower.includes("lettuce")) {
+    return { ph: "5.5 - 6.5", ec: "0.8 - 1.4", temp: "15-20°C", harvest: "30-40 Days" };
+  }
+  if (lower.includes("spinach")) {
+    return { ph: "5.5 - 6.5", ec: "1.8 - 2.3", temp: "15-18°C", harvest: "35-45 Days" };
+  }
+  if (lower.includes("kale")) {
+    return { ph: "5.5 - 6.5", ec: "1.2 - 2.0", temp: "16-21°C", harvest: "40-50 Days" };
+  }
+  if (lower.includes("bok choy") || lower.includes("tatsoi")) {
+    return { ph: "5.5 - 6.5", ec: "1.5 - 2.0", temp: "15-20°C", harvest: "30-40 Days" };
+  }
 
-// NEW HELPER: Generates beautiful, locked-down parameter badges
-function renderStaticPills() {
-  const keys = ['space', 'light', 'level'];
-  const pillBox = document.getElementById('active-pills-container') || createPillContainer();
-  pillBox.innerHTML = '';
+  // 2. Herbs
+  if (lower.includes("basil")) {
+    return { ph: "5.5 - 6.5", ec: "1.0 - 1.6", temp: "18-24°C", harvest: "40-50 Days" };
+  }
+  if (lower.includes("mint")) {
+    return { ph: "5.5 - 6.5", ec: "1.0 - 1.6", temp: "18-22°C", harvest: "40-50 Days" };
+  }
+  if (lower.includes("chives")) {
+    return { ph: "5.5 - 6.5", ec: "1.2 - 1.8", temp: "16-22°C", harvest: "40-50 Days" };
+  }
+  if (lower.includes("parsley") || lower.includes("cilantro") || lower.includes("dill")) {
+    return { ph: "5.5 - 6.5", ec: "1.2 - 1.8", temp: "16-20°C", harvest: "40-50 Days" };
+  }
+  if (lower.includes("oregano") || lower.includes("thyme") || lower.includes("lavender") || lower.includes("marjoram")) {
+    return { ph: "6.0 - 6.8", ec: "1.0 - 1.6", temp: "18-24°C", harvest: "50-65 Days" };
+  }
+  if (lower.includes("balm") || lower.includes("catnip")) {
+    return { ph: "5.5 - 6.5", ec: "1.0 - 1.6", temp: "18-22°C", harvest: "45-55 Days" };
+  }
 
-  keys.forEach(key => {
-    const pill = document.createElement('div');
-    pill.className = 'static-pill';
-    
-    // Grabs the value the user selected and capitalizes it nicely
-    const val = userAnswers[key];
-    pill.innerText = `${key.toUpperCase()}: ${val.charAt(0).toUpperCase() + val.slice(1)}`;
-    
-    pillBox.appendChild(pill);
-  });
+  // 3. Fruiting & Roots & Flowers & Specialties
+  if (lower.includes("tomato")) {
+    return { ph: "5.5 - 6.5", ec: "2.0 - 3.5", temp: "20-25°C", harvest: "60-80 Days" };
+  }
+  if (lower.includes("beans")) {
+    return { ph: "5.8 - 6.5", ec: "1.8 - 2.4", temp: "20-25°C", harvest: "50-65 Days" };
+  }
+  if (lower.includes("pepper")) {
+    return { ph: "5.8 - 6.5", ec: "1.8 - 2.4", temp: "20-26°C", harvest: "70-90 Days" };
+  }
+  if (lower.includes("strawberry")) {
+    return { ph: "5.5 - 6.2", ec: "1.2 - 1.8", temp: "18-24°C", harvest: "60-80 Days" };
+  }
+  if (lower.includes("watercress")) {
+    return { ph: "6.5 - 7.0", ec: "1.0 - 1.6", temp: "15-20°C", harvest: "30-40 Days" };
+  }
+  if (lower.includes("celery")) {
+    return { ph: "6.5 - 7.0", ec: "1.8 - 2.4", temp: "15-21°C", harvest: "80-100 Days" };
+  }
+  if (lower.includes("lime") || lower.includes("lemon")) {
+    return { ph: "5.5 - 6.5", ec: "1.6 - 2.4", temp: "21-27°C", harvest: "Continuous" };
+  }
+  if (lower.includes("echinacea") || lower.includes("chamomile")) {
+    return { ph: "6.0 - 6.8", ec: "1.0 - 1.6", temp: "18-24°C", harvest: "60-80 Days" };
+  }
+
+  // Fallback defaults
+  return { ph: "5.5 - 6.5", ec: "1.0 - 1.8", temp: "18-24°C", harvest: "45-60 Days" };
 }
 
-function createPillContainer() {
-  const container = document.createElement('div');
-  container.id = 'active-pills-container';
-  const resultsSection = document.getElementById('results-section');
-  // Pin them cleanly above the generated plant cards grid
-  resultsSection.insertBefore(container, document.getElementById('results-container'));
-  return container;
-}
+
 
 function startOver() {
   currentStep = 0;
   userAnswers = {};
+  isTyping = false;
   
   // Cleanly clear visibility states
   document.getElementById('results-section').classList.remove('section-visible');
   document.getElementById('results-section').classList.add('hidden');
+  
+
+
+  // Reset sunlight overlay
+  const sunOverlay = document.getElementById('sunlight-overlay');
+  if (sunOverlay) {
+    sunOverlay.style.opacity = '0';
+  }
   
   // --- UPGRADE: REMOVE MOVING GRADIENT AND RETURN TO STATIC BACKGROUND ---
   document.body.classList.remove('results-active');
